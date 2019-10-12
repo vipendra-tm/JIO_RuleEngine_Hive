@@ -1,0 +1,97 @@
+package UsageMonitoring.singleTriggerRule.data
+import gcontrol.rule.model.DataModel;
+import gcontrol.rule.model.Trigger;
+import gcontrol.rule.model.Validation;
+import gcontrol.rule.model.InvalidRules;
+import gcontrol.rule.model.ValidateRule;
+import gcontrol.rule.model.Status;
+import java.lang.Boolean;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
+import java.util.Date;
+rule "[DATA] USSAGE MONITORING PERCENTAGE BASE LIMIT VALID CONDITION"
+  dialect "mvel"
+  when
+  	Status(nullFlag==false)
+ 	$trigger:Trigger(ruleCondition=="PERCENTAGE BASE LIMIT")
+ 	$data: DataModel(conditionStatus($data.totalBytes+$trigger.ruleComparatorsymbol+(($data.baseLimit*$trigger.ruleConditionValue)/100)))
+	 not (InvalidRules(imsi==$data.imsi , ruleId== $trigger.ruleId ))	
+  then
+  System.out.println("[VALID-DATA] USSAGE MONITORING PERCENTAGE BASE LIMIT VALID CONDITION")	
+	ValidateRule validateRule1= new ValidateRule();
+	validateRule1.setImsi($data.imsi)
+	validateRule1.setRuleId($trigger.ruleId)
+	validateRule1.setValidation(Validation.PASSED)
+	validateRule1.setOccurenceTime(new Date())
+	insert(validateRule1)	
+end
+rule "[DATA] USSAGE MONITORING PERCENTAGE OVERAGE LIMIT VALID CONDITION"
+  dialect "mvel"
+  when
+  	Status(nullFlag==false)
+ 	$trigger:Trigger(ruleCondition=="PERCENTAGE OVERAGE LIMIT")
+ 	$data: DataModel(conditionStatus($data.totalBytes+$trigger.ruleComparatorsymbol+(($data.overageLimit*$trigger.ruleConditionValue)/100)))
+	 not (InvalidRules(imsi==$data.imsi , ruleId== $trigger.ruleId ))	
+  then
+  System.out.println("[VALID-DATA] USSAGE MONITORING PERCENTAGE OVERAGE LIMIT VALID CONDITION")
+	
+	ValidateRule validateRule1= new ValidateRule();
+	validateRule1.setImsi($data.imsi)
+	validateRule1.setRuleId($trigger.ruleId)
+	validateRule1.setValidation(Validation.PASSED)
+	validateRule1.setOccurenceTime(new Date())
+	insert(validateRule1)
+end
+rule "[DATA] USSAGE MONITORING - OVERAGE LIMIT VALID CONDITION"
+  dialect "mvel"
+  when
+  	Status(nullFlag==false)
+ 	$trigger:Trigger(ruleCondition=="OVERAGE LIMIT")
+ 	$data: DataModel(conditionStatus($data.totalBytes+$trigger.ruleComparatorsymbol+$data.overageLimit))
+	 not (InvalidRules(imsi==$data.imsi , ruleId== $trigger.ruleId ))	
+  then
+  System.out.println("[VALID-DATA] USSAGE MONITORING - OVERAGE LIMIT VALID CONDITION")
+	
+	ValidateRule validateRule1= new ValidateRule();
+	validateRule1.setImsi($data.imsi)
+	validateRule1.setRuleId($trigger.ruleId)
+	validateRule1.setValidation(Validation.PASSED)
+	validateRule1.setOccurenceTime(new Date())
+	insert(validateRule1)
+end
+rule "[DATA] USSAGE MONITORING - BASE LIMIT VALID CONDITION"
+  dialect "mvel"
+  when
+  	Status(nullFlag==false)
+ 	$trigger:Trigger(ruleCondition=="BASE LIMIT")
+ 	$data: DataModel(conditionStatus($data.totalBytes+$trigger.ruleComparatorsymbol+$data.baseLimit))
+	 not (InvalidRules(imsi==$data.imsi , ruleId== $trigger.ruleId ))	
+  then
+  System.out.println("[VALID-DATA] USSAGE MONITORING - BASE LIMIT VALID CONDITION")
+	
+	ValidateRule validateRule1= new ValidateRule();
+	validateRule1.setImsi($data.imsi)
+	validateRule1.setRuleId($trigger.ruleId)
+	validateRule1.setValidation(Validation.PASSED)
+	validateRule1.setOccurenceTime(new Date())
+	insert(validateRule1)
+end
+
+rule "[X AMOUNT(In MB)] USSAGE MONITORING - X AMOUNT(In MB) VALID CONDITION"
+  dialect "mvel"
+  when
+  	Status(nullFlag==false)
+ 	$trigger:Trigger(ruleCondition=="X AMOUNT(In MB)")
+ 	$data: DataModel(conditionStatus($data.totalBytes+$trigger.ruleComparatorsymbol+$trigger.ruleConditionValue*1000000))
+	 not (InvalidRules(imsi==$data.imsi , ruleId== $trigger.ruleId ))	
+  then
+  System.out.println("[VALID-DATA] USSAGE MONITORING - X AMOUNT(In MB) VALID CONDITION")	
+	ValidateRule validateRule1= new ValidateRule();
+	validateRule1.setImsi($data.imsi)
+	validateRule1.setRuleId($trigger.ruleId)
+	validateRule1.setValidation(Validation.PASSED)
+	validateRule1.setOccurenceTime(new Date())
+	insert(validateRule1)
+end
+

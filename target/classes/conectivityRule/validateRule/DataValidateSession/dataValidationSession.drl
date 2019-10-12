@@ -1,0 +1,22 @@
+package conectivityRule.singleTriggerRule.dataValidationSession 
+ 
+import gcontrol.rule.model.domain.DataModel;
+import gcontrol.rule.model.domain.Rules;
+import gcontrol.rule.model.domain.Validation;
+import gcontrol.rule.model.domain.ValidateRule;
+import java.time.LocalDate;
+
+rule "Valid SIM Session"
+  dialect "mvel"
+  when
+ 	$rules:Rules()
+	$data: DataModel( validation == Validation.PASSED )
+  then
+	
+	ValidateRule validateRule1= new ValidateRule();
+	validateRule1.setImsi($data.imsi)
+	validateRule1.setRuleId($rules.ruleId)
+	insert(validateRule1)
+end
+
+

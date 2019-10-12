@@ -1,0 +1,27 @@
+package conectivityRule.multipleTriggerValidataionRule.smsVoice 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import gcontrol.rule.model.DataModel;
+import gcontrol.rule.model.Validation;
+import gcontrol.rule.model.Rules;
+import gcontrol.rule.model.SMSModel;
+import gcontrol.rule.model.VoiceModel;
+
+rule "Valid SIM Session"
+  dialect "mvel"
+  when
+  	
+ 	$rules:Rules()
+ 	 
+	$data: DataModel( totalSessionCount > $trigger.ruleOccurrenceCount )
+  then
+	
+	modify($data) {
+		   setValidation( Validation.PASSED )
+		  
+		}
+	
+end
+
+

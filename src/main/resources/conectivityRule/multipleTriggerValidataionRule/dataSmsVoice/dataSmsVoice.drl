@@ -1,0 +1,31 @@
+package conectivityRule.multipleTriggerValidataionRule.dataSmsVoice
+ 
+import gcontrol.rule.model.DataModel;
+import gcontrol.rule.model.SMSModel;
+import gcontrol.rule.model.VoiceModel;
+import gcontrol.rule.model.Trigger;
+import gcontrol.rule.model.Validation;
+import gcontrol.rule.model.Rules;
+import gcontrol.rule.model.ValidateRule;
+import java.time.LocalDate;
+
+rule "Valid Data SMS Voice"
+  dialect "mvel"
+  when
+ 	$rules:Rules()
+ 	
+	String($imsi:"240270000231764")
+	
+	$sms: SMSModel( validation== Validation.PASSED ,imsi== $imsi)
+	$voice: VoiceModel( validation== Validation.PASSED ,IMSI== $imsi )
+	
+  then
+		
+	ValidateRule validateRule1= new ValidateRule();
+	validateRule1.setImsi($sms.imsi)
+	validateRule1.setRuleId($rules.ruleId)
+	insert(validateRule1)
+	
+end
+
+

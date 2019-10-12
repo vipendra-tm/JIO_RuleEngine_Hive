@@ -1,0 +1,47 @@
+package UsageMonitoring.imei
+import gcontrol.rule.model.EmeiData;
+import gcontrol.rule.model.Trigger;
+import gcontrol.rule.model.Validation;
+import gcontrol.rule.model.InvalidRules;
+import gcontrol.rule.model.ValidateRule;
+import gcontrol.rule.model.Status;
+import java.time.LocalDate;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
+import java.util.Date;
+
+rule "[VALID-IMEI] USSAGE IMEI TRACKING  VALID CONDITION"
+  dialect "mvel"
+  when
+  	Status(nullFlag==false)
+ 	$trigger:Trigger()
+ 	$data: EmeiData($data.PREVIOUS_IMEI!=$data.CURRENT_IMEI)
+	 not (InvalidRules(imsi==$data.IMSI , ruleId== $trigger.ruleId))	
+  then
+	System.out.println("[VALID-IMEI] USSAGE IMEI TRACKING VALID CONDITION")	  	
+	ValidateRule validateRule1= new ValidateRule();
+	validateRule1.setImsi($data.IMSI)
+	validateRule1.setRuleId($trigger.ruleId)
+	validateRule1.setValidation(Validation.PASSED)
+	validateRule1.setOccurenceTime(new Date())
+	insert(validateRule1)	
+end
+rule "[INVALID-IMEI] USSAGE IMEI TRACKING INVALID CONDITION"
+  dialect "mvel"
+  when
+  	Status(nullFlag==false)
+ 	$trigger:Trigger()
+ 	$data: EmeiData($data.PREVIOUS_IMEI==$data.CURRENT_IMEI)
+	 not (InvalidRules(imsi==$data.IMSI , ruleId== $trigger.ruleId ))	
+  then  
+	System.out.println("[INVALID-IMEI] USSAGE IMEI TRACKING INVALID CONDITION")	
+	InvalidRules invalidateRule1= new InvalidRules();
+	invalidateRule1.setImsi($data.IMSI)
+	invalidateRule1.setRuleId($trigger.ruleId)
+	invalidateRule1.setValidation(Validation.FAILED)
+	invalidateRule1.setOccurenceTime(new Date())
+	insert(invalidateRule1)	
+end
+
+

@@ -1,0 +1,75 @@
+package UsageMonitoring.singleTriggerRule.voice 
+import gcontrol.rule.model.VoiceModel;
+import gcontrol.rule.model.Trigger;
+import gcontrol.rule.model.Validation;
+import gcontrol.rule.model.InvalidRules;
+import gcontrol.rule.model.ValidateRule;
+import java.time.LocalDate;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
+import java.util.Date;
+import gcontrol.rule.model.Status;
+
+rule "[VALID-VOICE] USSAGE MONITORING  VALID CONDITION"
+  dialect "mvel"
+  when
+  	Status(nullFlag==false)
+ 	$trigger:Trigger()
+ 	$voice: VoiceModel(conditionStatus(callduration+$trigger.ruleComparatorsymbol+$trigger.ruleConditionValue))
+	 not (InvalidRules(imsi==$voice.imsi , ruleId== $trigger.ruleId ))	
+  then
+
+	  System.out.println("[VALID-VOICE] USSAGE MONITORING VALID CONDITION")
+	
+	ValidateRule validateRule1= new ValidateRule();
+	validateRule1.setImsi($voice.imsi)
+	validateRule1.setRuleId($trigger.ruleId)
+	validateRule1.setValidation(Validation.PASSED)
+	validateRule1.setOccurenceTime(new Date())
+	insert(validateRule1)	
+	
+end
+
+rule "[INVALID-VOICE] USSAGE MONITORING INVALID CONDITION"
+  dialect "mvel"
+  when
+  	Status(nullFlag==false)
+ 	$trigger:Trigger()
+ 	$voice: VoiceModel(!conditionStatus(callduration+$trigger.ruleComparatorsymbol+$trigger.ruleConditionValue))
+	 not (InvalidRules(imsi==$voice.imsi , ruleId== $trigger.ruleId ))	
+  then
+  
+	System.out.println("[INVALID-VOICE] USSAGE MONITORING INVALID CONDITION")
+	
+	InvalidRules invalidateRule1= new InvalidRules();
+	invalidateRule1.setImsi($voice.imsi)
+	invalidateRule1.setRuleId($trigger.ruleId)
+	invalidateRule1.setValidation(Validation.FAILED)
+	invalidateRule1.setOccurenceTime(new Date())
+	insert(invalidateRule1)
+	
+end
+
+
+rule "[INVALID-VOICE] USSAGE MONITORING INVALID CONDITION due to null list in any of above triggers"
+  dialect "mvel"
+  when
+  	Status(nullFlag==true)
+ 	$trigger:Trigger()
+ 	$voice: VoiceModel()
+	 not (InvalidRules(imsi==$voice.imsi , ruleId== $trigger.ruleId ))	
+  then
+  
+	System.out.println("[INVALID-VOICE] USSAGE MONITORING INVALID CONDITION due to null list in any of above triggers")
+	
+	InvalidRules invalidateRule1= new InvalidRules();
+	invalidateRule1.setImsi($voice.imsi)
+	invalidateRule1.setRuleId($trigger.ruleId)
+	invalidateRule1.setValidation(Validation.FAILED)
+	invalidateRule1.setOccurenceTime(new Date())
+	insert(invalidateRule1)
+	
+end
+
+

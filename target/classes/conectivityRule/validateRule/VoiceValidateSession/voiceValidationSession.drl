@@ -1,0 +1,21 @@
+package conectivityRule.singleTriggerRule.voiceValidationSession   
+import gcontrol.rule.model.domain.VoiceModel;
+import gcontrol.rule.model.domain.Rules;
+import gcontrol.rule.model.domain.Validation;
+import gcontrol.rule.model.domain.ValidateRule;
+import java.time.LocalDate;
+
+rule "Valid SIM Session"
+  dialect "mvel"
+  when
+ 	$rules:Rules()
+	$voice: VoiceModel( validation == Validation.PASSED )
+  then
+	
+	ValidateRule validateRule1= new ValidateRule();
+	validateRule1.setImsi($voice.imsi)
+	validateRule1.setRuleId($rules.ruleId)
+	insert(validateRule1)
+end
+
+

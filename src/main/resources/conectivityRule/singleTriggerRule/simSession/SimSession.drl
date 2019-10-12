@@ -1,0 +1,21 @@
+package conectivityRule.singleTriggerRule.simsSession 
+import gcontrol.rule.model.DataModel;
+import gcontrol.rule.model.Trigger;
+import gcontrol.rule.model.Validation;
+import java.time.LocalDate;
+
+rule "Valid SIM Session"
+  dialect "mvel"
+  when
+ 	$trigger:Trigger()
+	$data: DataModel( totalSessionCount > $trigger.ruleOccurrenceCount )
+  then
+	
+	modify($data) {
+		   setValidation( Validation.PASSED )
+		  
+		}
+	
+end
+
+

@@ -1,0 +1,34 @@
+package conectivityRule.singleTriggerRule.smsValidationSession  
+import gcontrol.rule.model.domain.SMSModel;
+import gcontrol.rule.model.domain.Rules;
+import gcontrol.rule.model.domain.Validation;
+import gcontrol.rule.model.domain.ValidateRule;
+import gcontrol.rule.model.domain.InvalidRules;
+import java.time.LocalDate;
+
+rule "Valid SMS Session"
+  dialect "mvel"
+  when
+ 	$rules:Rules()
+	$sms: SMSModel( validation == Validation.PASSED )
+  then
+	
+	ValidateRule validateRule1= new ValidateRule();
+	validateRule1.setImsi($sms.imsi)
+	validateRule1.setRuleId($rules.ruleId)
+	insert(validateRule1)
+end
+
+
+rule "InValid SMS Session"
+  dialect "mvel"
+  when
+ 	$rules:Rules()
+	$sms: SMSModel( validation == Validation.FAILED )
+  then
+	
+	InvalidRules invalidRule= new InvalidRules();
+	invalidRule.setImsi($sms.imsi)
+	invalidRule.setRuleId($rules.ruleId)
+	insert(invalidRule)
+end

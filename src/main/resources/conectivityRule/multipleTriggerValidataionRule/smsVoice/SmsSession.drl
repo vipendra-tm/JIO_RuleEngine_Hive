@@ -1,0 +1,22 @@
+package io.github.aasaru.drools.section03
+ 
+import io.github.aasaru.drools.domain.SMSModel;
+import io.github.aasaru.drools.domain.Trigger;
+import io.github.aasaru.drools.domain.Validation;
+import java.time.LocalDate;
+
+rule "Valid SMS Session"
+  dialect "mvel"
+  when
+ 	$trigger:Trigger()
+	$data: SMSModel( totalSessionCount > $trigger.ruleOccurrenceCount )
+  then
+	
+	modify($data) {
+		   setValidation( Validation.PASSED )
+		  
+		}
+	
+end
+
+

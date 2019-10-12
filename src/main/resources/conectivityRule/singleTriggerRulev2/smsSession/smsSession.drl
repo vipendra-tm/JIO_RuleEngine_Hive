@@ -1,0 +1,66 @@
+package conectivityRule.singleTriggerRule2.smsSession 
+import gcontrol.rule.model.domain.SMSModel;
+import gcontrol.rule.model.domain.Trigger;
+import gcontrol.rule.model.domain.Validation;
+import java.time.LocalDate;
+import gcontrol.rule.model.domain.ValidateRule;
+import gcontrol.rule.model.domain.InvalidRules;
+import gcontrol.rule.model.domain.Status;
+import java.util.Date;
+
+rule "[SMS] validate data count and  insertion in validation "
+  dialect "mvel"
+  when
+  	Status(startFlag == true )
+ 	$trigger:Trigger()
+	$sms: SMSModel( smsTypeCount >= $trigger.ruleOccurrenceCount )
+	not (InvalidRules(imsi==$sms.imsi , ruleId== $trigger.ruleId ))
+	not (ValidateRule(imsi==$sms.imsi , ruleId== $trigger.ruleId ))
+  then
+	System.out.println("true===[SMS] validate data count and  insertion in validation")
+	ValidateRule validateRule1= new ValidateRule();
+	validateRule1.setImsi($sms.imsi)
+	validateRule1.setRuleId($trigger.ruleId)
+	validateRule1.setValidation(Validation.PASSED)
+		validateRule1.setOccurenceTime(new Date())
+	insert(validateRule1)	
+end
+
+
+
+rule "[SMS] checking imsi in validation list and validate count and inserting to invalidate rule list"
+  dialect "mvel"
+  when
+  
+  	Status(startFlag == false )
+ 	$trigger:Trigger()
+ 	$validateRule: ValidateRule()
+	$sms: SMSModel(imsi == $validateRule.imsi , smsTypeCount < $trigger.ruleOccurrenceCount  )
+	not (InvalidRules(imsi==$sms.imsi , ruleId== $trigger.ruleId ))
+  then
+		System.out.println("true===[SMS] checking imsi in validation list and validate count and inserting to invalidate rule list")
+		System.out.println("imsi"+$sms.imsi)
+	InvalidRules invalidateRule1= new InvalidRules();
+	invalidateRule1.setImsi($sms.imsi)
+	invalidateRule1.setRuleId($trigger.ruleId)
+	invalidateRule1.setValidation(Validation.FAILED)
+	invalidateRule1.setOccurenceTime(new Date())
+	insert(invalidateRule1)	
+end
+
+rule "[SMS] One of trigger data list is null so we have to insert all data to invalid list"
+  dialect "mvel"
+  when
+  	Status(nullFlag==true)
+ 	$sms: SMSModel()
+	$trigger:Trigger()
+	not (InvalidRules(imsi==$sms.imsi , ruleId== $trigger.ruleId ))
+  then
+		System.out.println("[SMS] One of trigger data list is null so we have to insert all data to invalid list");
+	InvalidRules invalidateRule1= new InvalidRules();
+	invalidateRule1.setImsi($sms.imsi)
+	invalidateRule1.setRuleId($trigger.ruleId)
+	invalidateRule1.setValidation(Validation.FAILED)
+	invalidateRule1.setOccurenceTime(new Date())
+	insertLogical(invalidateRule1)	
+end

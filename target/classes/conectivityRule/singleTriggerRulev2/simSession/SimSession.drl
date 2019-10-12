@@ -1,0 +1,65 @@
+package conectivityRule.singleTriggerRule2.simSession 
+
+import gcontrol.rule.model.domain.DataModel;
+import gcontrol.rule.model.domain.Trigger;
+import gcontrol.rule.model.domain.Validation;
+import java.time.LocalDate;
+import gcontrol.rule.model.domain.ValidateRule;
+import gcontrol.rule.model.domain.InvalidRules;
+import gcontrol.rule.model.domain.Status;
+import java.util.Date;
+
+rule "[DATA] validate data count and  insertion in validation "
+  dialect "mvel"
+  when
+  	Status(nullFlag==false)   	
+ 	$trigger:Trigger()
+	$data: DataModel( totalSessionCount > $trigger.ruleOccurrenceCount )
+	not (InvalidRules(imsi==$data.imsi , ruleId== $trigger.ruleId ))
+	not (ValidateRule(imsi==$data.imsi , ruleId== $trigger.ruleId ))
+  then
+	System.out.println("[DATA] validate data count and  insertion in validation ")
+	ValidateRule validateRule1= new ValidateRule();
+	validateRule1.setImsi($data.imsi)
+	validateRule1.setRuleId($trigger.ruleId)
+	validateRule1.setValidation(Validation.PASSED)
+		validateRule1.setOccurenceTime(new Date())
+	insert(validateRule1)	
+end
+
+
+rule "[DATA] checking imsi in validation list and validate count and inserting to invalidate rule list"
+  dialect "mvel"
+  when
+  	Status(nullFlag==false)
+ 	$trigger:Trigger()
+ 	$validateRule: ValidateRule()
+	$data: DataModel(imsi == $validateRule.imsi && totalSessionCount < $trigger.ruleOccurrenceCount  )
+	not (InvalidRules(imsi==$data.imsi , ruleId== $trigger.ruleId ))
+  then
+		System.out.println("[DATA] checking imsi in validation list and validate count and inserting to invalidate rule list");
+	InvalidRules invalidateRule1= new InvalidRules();
+	invalidateRule1.setImsi($data.imsi)
+	invalidateRule1.setRuleId($trigger.ruleId)
+	invalidateRule1.setValidation(Validation.FAILED)
+	invalidateRule1.setOccurenceTime(new Date())
+	insertLogical(invalidateRule1)	
+end
+
+
+rule "[DATA] One of trigger data list is null so we have to insert all data to invalid list"
+  dialect "mvel"
+  when
+  	Status(nullFlag==true)
+ 	$data: DataModel()
+	$trigger:Trigger()
+	not (InvalidRules(imsi==$data.imsi , ruleId== $trigger.ruleId ))
+  then
+		System.out.println("[DATA] One of trigger data list is null so we have to insert all data to invalid list")
+	InvalidRules invalidateRule1= new InvalidRules();
+	invalidateRule1.setImsi($data.imsi)
+	invalidateRule1.setRuleId($trigger.ruleId)
+	invalidateRule1.setValidation(Validation.FAILED)
+	invalidateRule1.setOccurenceTime(new Date())
+	insertLogical(invalidateRule1)	
+end

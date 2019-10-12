@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Drools Online Course Sample Code and Study Materials (c) by Juhan Aasaru. 
+	Drools Online Course Sample Code and Study Materials is licensed under a 
+	Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International 
+	License. You should have received a copy of the license along with this work. 
+	If not, see <http://creativecommons.org/licenses/by-nc-nd/4.0/>. -->
+
+<kmodule xmlns="http://www.drools.org/xsd/kmodule">
+
+
+
+	<!--Single Trigger rules kmodule -->
+
+	<kbase
+		packages="conectivityRule.singleTriggerRulev2.simSession">
+		<ksession name="Connectivity Monitoring_SIM Session" />
+	</kbase>
+
+	<kbase
+		packages="conectivityRule.singleTriggerRulev2.smsSession">
+		<ksession name="Connectivity Monitoring_MO SMS" />
+	</kbase>
+
+	<kbase
+		packages="conectivityRule.singleTriggerRulev2.voiceSession">
+		<ksession name="Connectivity Monitoring_VOICE Called" />
+	</kbase>
+
+	<!--END OF Single Trigger rules kmodule -->
+
+
+
+	<!--END OF Single Trigger rules kmodule -->
+
+
+
+
+	<!-- Single validation Rule -->
+	<kbase
+		packages="conectivityRule.validateRule.VoiceValidateSession">
+		<ksession name="VOICE" />
+	</kbase>
+
+	<kbase
+		packages="conectivityRule.validateRule.SMSValidateSession">
+		<ksession name="SMS" />
+	</kbase>
+
+	<kbase
+		packages="conectivityRule.validateRule.DataValidateSession">
+		<ksession name="DATA" />
+	</kbase>
+
+	<kbase
+		packages="UsageMonitoring.singleTriggerRule.data">
+		<ksession name="Usage Monitoring_DATA" />
+	</kbase>
+	
+     <kbase
+		packages="UsageMonitoring.imei">
+		<ksession name="IMEI Locking_IMEI Changes" />
+	</kbase>
+
+	<kbase
+		packages="UsageMonitoring.singleTriggerRule.sms">
+		<ksession name="Usage Monitoring_SMS" />
+	</kbase>
+	<kbase
+		packages="UsageMonitoring.singleTriggerRule.voice">
+		<ksession name="Usage Monitoring_VOICE" />
+	</kbase>	
+
+	<kbase
+		packages="UsageMonitoring.singleTriggerRule.data">
+		<ksession name="Usage Monitoring_ALL SERVICES_BASE LIMIT" />
+	</kbase>
+
+	<kbase
+		packages="UsageMonitoring.singleTriggerRule.data">
+		<ksession
+			name="Usage Monitoring_ALL SERVICES_PERCENTAGE BASE LIMIT" />
+	</kbase>
+
+	<kbase
+		packages="UsageMonitoring.singleTriggerRule.data">
+		<ksession name="Usage Monitoring_ALL SERVICES_OVERAGE LIMIT" />
+	</kbase>
+
+
+	<kbase
+		packages="UsageMonitoring.singleTriggerRule.data">
+		<ksession
+			name="Usage Monitoring_ALL SERVICES_PERCENTAGE OVERAGE LIMIT" />
+	</kbase>
+	
+	<kbase
+		packages="UsageMonitoring.singleTriggerRule.sms">
+		<ksession name="Usage Monitoring_ALL SERVICES_MO" />
+	</kbase>
+
+	<kbase
+		packages="UsageMonitoring.singleTriggerRule.sms">
+		<ksession name="Usage Monitoring_ALL SERVICES_MT" />
+	</kbase>
+	
+	
+	<kbase
+		packages="UsageMonitoring.singleTriggerRule.voice">
+		<ksession name="Usage Monitoring_ALL SERVICES_X AMOUNT" />
+	</kbase>
+
+</kmodule>

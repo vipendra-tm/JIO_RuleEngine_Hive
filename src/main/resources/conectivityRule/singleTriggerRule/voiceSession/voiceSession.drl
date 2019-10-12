@@ -1,0 +1,21 @@
+package conectivityRule.singleTriggerRule.voiceSession 
+import gcontrol.rule.model.domain.VoiceModel;
+import gcontrol.rule.model.domain.Trigger;
+import gcontrol.rule.model.domain.Validation;
+import java.time.LocalDate;
+
+rule "Valid SIM Session"
+  dialect "mvel"
+  when
+ 	$trigger:Trigger()
+	$voice: VoiceModel( totalSessionCount > $trigger.ruleOccurrenceCount )
+  then
+	
+	modify($voice) {
+		   setValidation( Validation.PASSED )
+		  
+		}
+	
+end
+
+

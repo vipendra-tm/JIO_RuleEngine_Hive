@@ -1,0 +1,66 @@
+package conectivityRule.singleTriggerRule2.voiceSession 
+import gcontrol.rule.model.domain.VoiceModel;
+import gcontrol.rule.model.domain.Trigger;
+import gcontrol.rule.model.domain.Validation;
+import java.time.LocalDate;
+import gcontrol.rule.model.domain.ValidateRule;
+import gcontrol.rule.model.domain.InvalidRules;
+import gcontrol.rule.model.domain.Status;
+import java.util.Date;
+
+rule "[VOICE] validate data count and  insertion in validation "
+  dialect "mvel"
+  when
+  	Status(startFlag == true ) 
+ 	$trigger:Trigger()
+	$voice: VoiceModel( voiceTypeCount > $trigger.ruleOccurrenceCount )
+	not (InvalidRules(imsi==$voice.imsi , ruleId== $trigger.ruleId ))
+	not (ValidateRule(imsi==$voice.imsi , ruleId== $trigger.ruleId ))
+  then
+	System.out.println("true===[VOICE] validate data count and  insertion in validation")
+	ValidateRule validateRule1= new ValidateRule();
+	validateRule1.setImsi($voice.imsi)
+	validateRule1.setRuleId($trigger.ruleId)
+	validateRule1.setValidation(Validation.PASSED)
+	validateRule1.setOccurenceTime(new Date())
+	insertLogical(validateRule1)	
+end
+
+
+
+rule "checking imsi in validation list and validate count and inserting to invalidate rule list"
+  dialect "mvel"
+  when
+  	Status(startFlag == false)
+ 	$trigger:Trigger()
+ 	$validateRule: ValidateRule()
+	$voice: VoiceModel(imsi == $validateRule.imsi , voiceTypeCount < $trigger.ruleOccurrenceCount  )
+	not (InvalidRules(imsi==$voice.imsi , ruleId== $trigger.ruleId ))
+  then
+		System.out.println("true===[VOICE] checking imsi in validation list and validate count and inserting to invalidate rule list")
+	InvalidRules invalidateRule1= new InvalidRules();
+	invalidateRule1.setImsi($voice.imsi)
+	invalidateRule1.setRuleId($trigger.ruleId)
+	invalidateRule1.setValidation(Validation.FAILED)
+	invalidateRule1.setOccurenceTime(new Date())
+	insertLogical(invalidateRule1)	
+end
+
+
+rule "[VOICE] One of trigger data list is null so we have to insert all data to invalid list"
+  dialect "mvel"
+  when
+  	Status(nullFlag==true)
+ 	$voice: VoiceModel()
+	$trigger:Trigger()
+	not (InvalidRules(imsi==$voice.imsi , ruleId== $trigger.ruleId ))
+  then
+		System.out.println("[VOICE] One of trigger data list is null so we have to insert all data to invalid list");
+	InvalidRules invalidateRule1= new InvalidRules();
+	invalidateRule1.setImsi($voice.imsi)
+	invalidateRule1.setRuleId($trigger.ruleId)
+	invalidateRule1.setValidation(Validation.FAILED)
+	invalidateRule1.setOccurenceTime(new Date())
+	insertLogical(invalidateRule1)	
+end
+

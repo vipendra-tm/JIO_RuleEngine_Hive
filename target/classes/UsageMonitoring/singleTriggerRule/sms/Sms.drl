@@ -1,0 +1,72 @@
+package UsageMonitoring.singleTriggerRule.sms
+import java.util.Date;
+import gcontrol.rule.model.SMSModel;
+import gcontrol.rule.model.Trigger;
+import gcontrol.rule.model.Validation;
+import gcontrol.rule.model.InvalidRules;
+import gcontrol.rule.model.ValidateRule;
+import gcontrol.rule.model.Status;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
+
+rule "[VALID-SMS] USSAGE MONITORING X-AMOUNT VALID CONDITION"
+  dialect "mvel"
+  when
+ 	$trigger:Trigger()
+ 	Status(nullFlag==false)   	
+ 	$sms: SMSModel(conditionStatus(smsTypeCount+$trigger.ruleComparatorsymbol+$trigger.ruleConditionValue))
+	 not (InvalidRules(imsi==$sms.imsi , ruleId== $trigger.ruleId ))	
+  then
+  System.out.println("[VALID-SMS] USSAGE MONITORING X-AMOUNT VALID CONDITION")
+	
+	ValidateRule validateRule1= new ValidateRule();
+	validateRule1.setImsi($sms.imsi)
+	validateRule1.setRuleId($trigger.ruleId)
+	validateRule1.setValidation(Validation.PASSED)
+	validateRule1.setOccurenceTime(new Date())
+	insertLogical(validateRule1)	
+	
+end
+
+rule "[INVALID-SMS] USSAGE MONITORING INVALID CONDITION"
+  dialect "mvel"
+  when
+ 	$trigger:Trigger()
+ 	Status(nullFlag==false)
+ 	$sms: SMSModel(!conditionStatus(smsTypeCount+$trigger.ruleComparatorsymbol+$trigger.ruleConditionValue))
+	 not (InvalidRules(imsi==$sms.imsi , ruleId== $trigger.ruleId ))	
+  then
+  System.out.println("[INVALID-SMS] USSAGE MONITORING INVALID CONDITION")
+	
+	InvalidRules invalidateRule1= new InvalidRules();
+	invalidateRule1.setImsi($sms.imsi)
+	invalidateRule1.setRuleId($trigger.ruleId)
+	invalidateRule1.setValidation(Validation.FAILED)
+	invalidateRule1.setOccurenceTime(new Date())
+	insertLogical(invalidateRule1)
+	
+end
+
+
+rule "[INVALID-SMS] USSAGE MONITORING INVALID CONDITION due to null list in any of above triggers"
+  dialect "mvel"
+  when
+ 	$trigger:Trigger()
+ 	Status(nullFlag==true)
+ 	$sms: SMSModel()
+	 not (InvalidRules(imsi==$sms.imsi , ruleId== $trigger.ruleId ))	
+  then
+  System.out.println("[INVALID-SMS] USSAGE MONITORING INVALID CONDITION due to null list in any of above triggers")
+	
+	InvalidRules invalidateRule1= new InvalidRules();
+	invalidateRule1.setImsi($sms.imsi)
+	invalidateRule1.setRuleId($trigger.ruleId)
+	invalidateRule1.setValidation(Validation.FAILED)
+	invalidateRule1.setOccurenceTime(new Date())
+	insertLogical(invalidateRule1)
+	
+end
+
+
+
