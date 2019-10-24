@@ -1,103 +1,28 @@
 package gcontrol.drools.simstate;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import gcontrol.rule.model.MappingModel;
 /*
  * @Author Vipendra Kumar
  * @Objective this would be generated the status of SIM Change state from rule engine.
  */
 public class SimStateChangeApi 
 {
-private String stateChangeUrl;
-private String authenticationUrl;
-private String username;
-private String password;
-
-public SimStateChangeApi() 
-{
-    File file = new File(System.getenv("Rule_Engine")+"/template/API_Mapping.properties");
-	Properties property=new Properties();
-	try {
-		InputStream in=new FileInputStream(file);
-		property.load(in);
-		in.close();
-	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	}	
-authenticationUrl=property.getProperty("rule.authentication_api_url");	
-stateChangeUrl=property.getProperty("rule.sim_state_change_api");
-username=property.getProperty("rule.username");
-password=property.getProperty("rule.password");
-System.out.println("AuthenticationUrl::"+authenticationUrl);
-System.out.println("StateChangeUrl::"+stateChangeUrl);
-}
-/*
- * @return the stateChangeUrl
- */
-public String getStateChangeUrl() {
-	return stateChangeUrl;
-}
-/*
- * @param set the stateChangeUrl
- */
-public void setStateChangeUrl(String stateChangeUrl) {
-	this.stateChangeUrl = stateChangeUrl;
-}
-/*
- * @return the authenticationUrl
- */
-public String getAuthenticationUrl() {
-	return authenticationUrl;
-}
-/*
- * @param set the authenticationUrl
- */
-public void setAuthenticationUrl(String authenticationUrl) {
-	this.authenticationUrl = authenticationUrl;
-}
-/*
- * @return the username
- */
-public String getUsername() {
-	return username;
-}
-/*
- * @param set the username
- */
-public void setUsername(String username) {
-	this.username = username;
-}
-/*
- * @return the password
- */
-public String getPassword() {
-	return password;
-}
-/*
- * @param set the password
- */
-public void setPassword(String password) {
-	this.password = password;
-}
-
+public static final MappingModel properties=LoadProperties.LoadApi_MappingPropertiesData();
 /*
  * This  method give response status about the SIM state change condition 
  * after passing @param url
@@ -112,7 +37,7 @@ public Map<String,Object> SimStateChangeResponse(String AuthToken,List<String> c
      try
      {
        //make connection 
-   	   URL url = new URL(getStateChangeUrl().trim());
+   	   URL url = new URL(properties.getStateChangeUrl().trim());
    	   conn = (HttpURLConnection) url.openConnection();
 	   conn.setDoOutput(true);
 	   conn.setRequestMethod("PUT");
@@ -179,14 +104,14 @@ public Map<String,Object> SimStateAuthenticationApi()
     HttpURLConnection conn=null;
 	 try
 	  {
-		URL url = new URL(getAuthenticationUrl().trim());
+		URL url = new URL(properties.getAuthenticationUrl().trim());
 		conn = (HttpURLConnection) url.openConnection();
 		conn.setDoOutput(true);
 		conn.setRequestMethod("POST");
 		conn.setRequestProperty("Content-Type", "application/json");
 		JSONObject inputJson  = new JSONObject();
-		inputJson.put("username", getUsername().trim());
-		inputJson.put("password", getPassword().trim());
+		inputJson.put("username", properties.getUsername().trim());
+		inputJson.put("password", properties.getPassword().trim());
 		System.out.println("Json format::"+inputJson.toString());
 		OutputStream os = conn.getOutputStream();
 		os.write(inputJson.toString().getBytes());
@@ -226,7 +151,7 @@ public Map<String,Object> SimStateAuthenticationApi()
 	   }
 	 return toakenVal;	
 }
-/* this is used for the testing purpose.
+// this is used for the testing purpose.
 public static void main(String arg[])
 {
 	SimStateChangeApi simStateChangeApi=new SimStateChangeApi();
@@ -238,5 +163,5 @@ public static void main(String arg[])
 	Map<String,Object> mappingData=simStateChangeApi.SimStateChangeResponse(token_value, list, "Deactivated");
 	System.out.println("sim status::::"+mappingData.get("Response_Code"));
 	System.out.println("Error_Code::::"+mappingData.get("Response_Status"));
-}*/
+}
 }

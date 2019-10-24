@@ -1,5 +1,4 @@
 package gcontrol.rules.service;
-
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -10,11 +9,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
-
+import gcontrol.drools.simstate.HiveCdrDataDao;
 import gcontrol.drools.simstate.SimStateChangeApi;
 import gcontrol.rule.model.ActiveAlert;
 import gcontrol.rule.model.InvalidRules;
-import gcontrol.rule.model.MessageVo;
 import gcontrol.rule.model.RuleAction;
 import gcontrol.rule.model.ValidateRule;
 import gcontrol.rules.configuration.Configuration;
@@ -41,27 +39,14 @@ private static	MailService mailer = new MailService();
 	{
 		System.out.println("validate rules:-" + RuleIntiatorV2.validRule);
 		System.out.println("invalidate rules :" + RuleIntiatorV2.invalidateRule);
-		
+		HiveCdrDataDao hivCdr=new HiveCdrDataDao();
 		if((RuleIntiatorV2.invalidateRule.size() > 0) && (ruleCategoryName.equals(Configuration.IMEI_TRACKING)))
-		{
-			RuleIntiatorV2.invalidateRule.forEach(n -> {				
-				List<MessageVo> updatemessage=RuleIntiatorV2.removeInvalidRuleMsiFromProcedure(Configuration.UPDATE_ACTIVE_ALERT_QUREY,n.getRuleId(),n.getImsi());
-				updatemessage.stream().forEach(p->System.out.println("Alert rule message is:-"+p.getMessage()+":: amd ISMI is:-" + n.getImsi())); 
-			});		
-		}
-		if (RuleIntiatorV2.invalidateRule.size() > 0 && (ruleCategoryName.equals(Configuration.CONNECTIVITY_MONITORING))) 
-		{
-				RuleIntiatorV2.invalidateRule.forEach(n -> {
-				List<MessageVo> updatemessage=RuleIntiatorV2.removeInvalidRuleMsiFromProcedure(Configuration.UPDATE_ACTIVE_ALERT_QUREY,n.getRuleId(),n.getImsi());
-				updatemessage.stream().forEach(p->System.out.println("Alert rule message is:-"+p.getMessage()+":: amd ISMI is:-" + n.getImsi())); 				
-			});
+		{			
+			hivCdr.updateInValidBusinessRule(RuleIntiatorV2.invalidateRule);
 		}
 		if (RuleIntiatorV2.invalidateRule.size() > 0 && (ruleCategoryName.equals(Configuration.USAGE_MONITORING))) 
 		{
-				RuleIntiatorV2.invalidateRule.forEach(n -> {
-				List<MessageVo> updatemessage=RuleIntiatorV2.removeInvalidRuleMsiFromProcedure(Configuration.UPDATE_ACTIVE_ALERT_QUREY,n.getRuleId(),n.getImsi());
-				updatemessage.stream().forEach(p->System.out.println("Alert rule message is:-"+p.getMessage()+":: amd ISMI is:-" + n.getImsi())); 				
-			});
+		 hivCdr.updateInValidBusinessRule(RuleIntiatorV2.invalidateRule);
 		}
 		
 		Set<ValidateRule> validRule= RuleIntiatorV2.validRule.stream().filter(distinctByKeys(ValidateRule::getImsi))
@@ -82,21 +67,8 @@ private static	MailService mailer = new MailService();
 		});
 
 		if (sb.length() > 0) {
-			sb.deleteCharAt(sb.lastIndexOf(","));
-			sb.insert(0, Configuration.INSERT_ACTIVE_ALERT_QUREY);
-			System.out.println("insert query to active alert:-" + sb.toString());
-
-			RuleIntiatorV2.genericService.executeAnySqlQuery(sb.toString());
+			hivCdr.insertIntoAlertTable(sb);
 		}
-		/*StringBuilder invalidSb = new StringBuilder();
-		RuleIntiatorV2.invalidateRule.forEach(n -> {
-			invalidSb.append(Configuration.UPDATE_ACTIVE_ALERT_QUREY.replaceAll("<imsi>", n.getImsi())
-					.replaceAll("<rule_id>", String.valueOf(n.getRuleId())));
-		});
-		if (RuleIntiatorV2.invalidateRule.size() > 0) {
-			/*System.out.println("invalidSb update query:-" + invalidSb.toString());
-			RuleIntiatorV2.genericService.executeSqlQuery(invalidSb.toString());			
-		}*/		
 		if (validRule.size() > 0)
 		{
 			System.out.println("imsiList for email sent::"+String.join(",",validRule.stream().map(ValidateRule::getImsi).collect(Collectors.toList())));
@@ -148,20 +120,13 @@ private static	MailService mailer = new MailService();
 	public static void actionForInactiveRule(List<ActiveAlert> activeAlertResult,int ruleId) 
 	{		
 		System.out.println("inside actionForInactiveRule condition:::");
+		HiveCdrDataDao hivCdr=new HiveCdrDataDao();
 		Set<String> invalidRulesData = new HashSet<>();		
 		invalidRulesData.addAll(RuleIntiatorV2.invalidateRule.stream().map(InvalidRules::getImsi).collect(Collectors.toSet()));
 		invalidRulesData.addAll(RuleIntiatorV2.validRule.stream().map(ValidateRule::getImsi).collect(Collectors.toSet()));
 		System.out.println("InactiveRule data list:-"+invalidRulesData);
-		invalidRulesData.retainAll(activeAlertResult.stream().map(ActiveAlert::getImsi).collect(Collectors.toSet()));
-		invalidRulesData.forEach(n -> {
-			
-			List<MessageVo> updatemessage=RuleIntiatorV2.removeInvalidRuleMsiFromProcedure(Configuration.UPDATE_ACTIVE_ALERT_QUREY,ruleId,n);
-			updatemessage.stream().forEach(p->System.out.println("Alert rule message is:-"+p.getMessage()+":: amd ISMI is:-" + n)); 
-			/*String invalidUpdateQuery = Configuration.UPDATE_ACTIVE_ALERT_QUREY.replaceAll("<imsi>", n)
-					.replaceAll("<rule_id>", String.valueOf(ruleId));
-			System.out.println("invalidSb update query:-" + invalidUpdateQuery);
-			RuleIntiatorV2.genericService.executeAnySqlQuery(invalidUpdateQuery);*/
-		});
+		invalidRulesData.retainAll(activeAlertResult.stream().map(ActiveAlert::getImsi).collect(Collectors.toSet()));		
+		hivCdr.updateForInactiveRule(invalidRulesData,ruleId);		
 	}
 	
 	/* Created generic distinctByKeys method for filtering imsi key values to collecting into Set*/

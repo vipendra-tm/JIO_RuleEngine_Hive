@@ -28,17 +28,13 @@ public class UssageMonitoring {
 		
 		  String kieSessionName=trigger.getRuleCategoryName()+"_"+trigger.getRuleParameter();		  
 		  KieContainer kieClasspathContainer = KieServices.Factory.get().getKieClasspathContainer();
-		  if(trigger.getRuleCategoryName().equalsIgnoreCase(Configuration.CONNECTIVITY_MONITORING)) 
-		  {
-			  kieSessionName=trigger.getRuleCategoryName()+"_"+trigger.getRuleDefaultCondition();
-		  }
 		  if(trigger.getRuleParameter()!=null)
 		  {
 		  if(trigger.getRuleParameter().equalsIgnoreCase(Configuration.ALL_SERVICES)) 
 		  {
 		  kieSessionName=trigger.getRuleCategoryName()+"_"+trigger.getRuleParameter()+"_"+  trigger.getRuleCondition();
 		  }
-		 }
+		  }
 		  if(trigger.getRuleCategoryName().equalsIgnoreCase(Configuration.IMEI_TRACKING) && trigger.getRuleParameter()==null) 
 		  {
 			  kieSessionName=trigger.getRuleCategoryName()+"_"+trigger.getRuleDefaultCondition();

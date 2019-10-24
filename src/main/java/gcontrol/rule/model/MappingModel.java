@@ -10,6 +10,9 @@ public class MappingModel
 	private String hive_url;
 	private String hive_username;
 	private String hive_password;
+	private String isHadoop;
+	private String isMySql;
+	private String mySqlDatabase;
 	public String getStateChangeUrl() {
 		return stateChangeUrl;
 	}
@@ -58,12 +61,33 @@ public class MappingModel
 	public void setHive_password(String hive_password) {
 		this.hive_password = hive_password;
 	}
+	
+	public String getIsHadoop() {
+		return isHadoop;
+	}
+	public void setIsHadoop(String isHadoop) {
+		this.isHadoop = isHadoop;
+	}
+	public String getIsMySql() {
+		return isMySql;
+	}
+	public void setIsMySql(String isMySql) {
+		this.isMySql = isMySql;
+	}
+	
+	public String getMySqlDatabase() {
+		return mySqlDatabase;
+	}
+	public void setMySqlDatabase(String mySqlDatabase) {
+		this.mySqlDatabase = mySqlDatabase;
+	}
 	@Override
 	public String toString() {
 		return "MappingModel [stateChangeUrl=" + stateChangeUrl + ", authenticationUrl=" + authenticationUrl
 				+ ", username=" + username + ", password=" + password + ", hive_driver=" + hive_driver + ", hive_url="
-				+ hive_url + ", hive_username=" + hive_username + ", hive_password=" + hive_password + "]";
+				+ hive_url + ", hive_username=" + hive_username + ", hive_password=" + hive_password + ", isHadoop="
+				+ isHadoop + ", isMySql=" + isMySql + "]";
 	}
 	
-	
+		
 }
